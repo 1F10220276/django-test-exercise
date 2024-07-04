@@ -1,8 +1,7 @@
-from django.db import models
-
 # Create your models here.
 from django.db import models
 from django.utils import timezone
+
 
 # Create your models here.
 class Task(models.Model):
@@ -15,3 +14,4 @@ class Task(models.Model):
         if self.due_at is None:
             return False
         return self.due_at < dt
+    
