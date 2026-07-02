@@ -4,7 +4,6 @@ from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from todo.models import Task
 
-
 # Create your views here.
 def index(request):
     if request.method == "POST":
@@ -33,6 +32,14 @@ def detail(request, task_id):
     }
 
     return render(request, 'todo/detail.html', context)
+ 
+def delete(request, task_id):
+    try:
+        task = Task. objects.get(pk=task_id)
+    except Task.DoesNotExist:
+        raise Http404("Task does not exist")
+    task.delete()
+    return redirect(index)
 
 def update (request, task_id):
     try:
