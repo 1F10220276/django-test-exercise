@@ -1,0 +1,122 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Noto Sans JP", sans-serif;
+  background: linear-gradient(135deg, #f6fbff 0%, #eef8ff 45%, #fff8ef 100%);
+  color: #2f3e4e;
+}
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.app-shell {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 12px 36px rgba(67, 112, 167, 0.12);
+  padding: 28px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  color: #2f6fe0;
+  font-size: 2rem;
+}
+
+p {
+  color: #5b6b7d;
+  line-height: 1.6;
+}
+
+.hero {
+  margin-bottom: 20px;
+}
+
+.form-card,
+.task-card,
+.panel {
+  background: #f8fcff;
+  border: 1px solid #dfeefc;
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+form div {
+  margin-bottom: 14px;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #3f4f63;
+}
+
+input,
+button {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid #c7dcf4;
+  padding: 12px 14px;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: 2px solid #8fc0ff;
+  border-color: #8fc0ff;
+}
+
+button {
+  background: #4f8cff;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #3b74d9;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.links a,
+.task-card h2 a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.links a:hover,
+.task-card h2 a:hover {
+  text-decoration: underline;
+}
+
+.task-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.task-card ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #4b5b6c;
+}
+
+.task-card.completed {
+  background: #f2fff7;
+  border-color: #b9e8c7;
+}
+
+.task-card.pending {
+  background: #f9fcff;
+}
