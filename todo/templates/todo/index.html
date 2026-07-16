@@ -78,15 +78,11 @@
         <div class="task-card {% if task.completed %}completed{% else %}pending{% endif %}">
           <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>
           <ul>
-<<<<<<< HEAD
             <li>Priority: {{ task.get_priority_display }}</li>
-          <li>Posted at: {{ task.posted_at }}</li>
-=======
             <li>Posted at: {{ task.posted_at }}</li>
             {% if task.category %}
             <li>Category: {{ task.category.name }}</li>
             {% endif %}
->>>>>>> 2c62bca36f0e4905cb74ad1a7cf5afd94e9497ea
             {% if task.due_at %}
             <li>Due at: {{ task.due_at }}</li>
             {% endif %}
