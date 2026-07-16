@@ -31,3 +31,7 @@ class Task(models.Model):
         if self.completed or self.due_at is None:
             return False
         return dt <= self.due_at <= dt + timezone.timedelta(hours=threshold_hours)
+
+    @property
+    def is_due_soon_now(self):
+        return self.is_due_soon(timezone.now())
