@@ -37,6 +37,15 @@
                     </div>
 
                     <div>
+                        <label for="prioritySelect">Priority</label><br>
+                        <select id="prioritySelect" name="priority">
+                            <option value="low" {% if task.priority == 'low' %}selected{% endif %}>低</option>
+                            <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>中</option>
+                            <option value="high" {% if task.priority == 'high' %}selected{% endif %}>高</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <button type="submit">Submit</button>
                     </div>
                 </form>
