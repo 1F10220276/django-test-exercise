@@ -16,11 +16,41 @@
           <h1>Sample To Do Application</h1>
           <p>You can submit tasks from the following form.</p>
         </div>
+        <div class="filter-card">
+          <form class="form-card" action="{% url 'index' %}" method="get">
+            <div>
+              <label for="searchInput">Search</label><br>
+              <input id="searchInput" name="search" type="text" placeholder="Search tasks" value="{{ search }}">
+            </div>
+            <div>
+              <label for="categoryFilter">Category</label><br>
+              <select id="categoryFilter" name="category">
+                <option value="">All categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <button type="submit">Filter</button>
+            </div>
+          </form>
+        </div>
+
         <form class="form-card" action="{% url 'index' %}" method="post">
           {% csrf_token %}
           <div>
             <label for="titleInput">Title</label><br>
             <input id="titleInput" name="title" type="text" placeholder="Input title">
+          </div>
+          <div>
+            <label for="categoryInput">Category</label><br>
+            <select id="categoryInput" name="category">
+              <option value="">Uncategorized</option>
+              {% for category in categories %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
+              {% endfor %}
+            </select>
           </div>
           <div>
             <label for="dueInput">Due at:</label><br>
@@ -41,6 +71,9 @@
           <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>
           <ul>
             <li>Posted at: {{ task.posted_at }}</li>
+            {% if task.category %}
+            <li>Category: {{ task.category.name }}</li>
+            {% endif %}
             {% if task.due_at %}
             <li>Due at: {{ task.due_at }}</li>
             {% endif %}
