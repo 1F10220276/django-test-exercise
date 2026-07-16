@@ -40,3 +40,8 @@ class Task(models.Model):
         if self.due_at is None:
             return False
         return self.due_at < dt
+
+    def is_due_soon(self, dt, threshold_hours=24):
+        if self.completed or self.due_at is None:
+            return False
+        return dt <= self.due_at <= dt + timezone.timedelta(hours=threshold_hours)
