@@ -76,6 +76,28 @@ class TodoViewTestCase(TestCase):
         self.cat1 = Category.objects.create(name="Work")
         self.cat2 = Category.objects.create(name="Personal")
 
+    def test_index_post_saves_selected_priority(self):
+        response = self.client.post(
+            "/",
+            {"title": "Priority task", "priority": Task.PRIORITY_HIGH},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        task = Task.objects.get(title="Priority task")
+        self.assertEqual(task.priority, Task.PRIORITY_HIGH)
+
+    def test_update_post_changes_priority(self):
+        task = Task.objects.create(title="Task", priority=Task.PRIORITY_MEDIUM)
+
+        response = self.client.post(
+            f"/{task.pk}/update",
+            {"title": "Updated task", "priority": Task.PRIORITY_LOW},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        task.refresh_from_db()
+        self.assertEqual(task.priority, Task.PRIORITY_LOW)
+
     def test_index_get(self):
         response = self.client.get("/")
 
