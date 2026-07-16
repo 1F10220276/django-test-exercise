@@ -68,6 +68,20 @@ class TaskModelTestCase(TestCase):
 
         self.assertFalse(task.is_due_soon(current))
 
+    def test_is_due_soon_false_for_completed_task(self):
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title="task1", completed=True, due_at=current + timedelta(hours=3))
+        task.save()
+
+        self.assertFalse(task.is_due_soon(current))
+
+    def test_is_due_soon_false_for_no_due_date(self):
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title="task1", due_at=None)
+        task.save()
+
+        self.assertFalse(task.is_due_soon(current))
+
 
 class TodoViewTestCase(TestCase):
     def test_index_get(self):
