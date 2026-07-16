@@ -232,3 +232,28 @@ class TodoViewTestCase(TestCase):
         response = self.client.get('/999/close')
 
         self.assertEqual(response.status_code, 404)
+
+    def test_index_get_category_invalid(self):
+        Task.objects.create(title="Task A", category=self.cat1)
+        Task.objects.create(title="Task B", category=self.cat2)
+        response = self.client.get("/?category=abc")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["tasks"]), 2)
+
+    def test_index_get_search_and_category(self):
+        Task.objects.create(title="Buy milk", category=self.cat1)
+        Task.objects.create(title="Buy eggs", category=self.cat2)
+        response = self.client.get("/?search=buy&category={}".format(self.cat1.pk))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["tasks"]), 1)
+        self.assertEqual(response.context["tasks"][0].title, "Buy milk")
+
+    def test_index_context_preserves_search_and_category(self):
+        Task.objects.create(title="Buy milk", category=self.cat1)
+        response = self.client.get("/?search=buy&category={}".format(self.cat1.pk))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["search"], "buy")
+        self.assertEqual(response.context["selected_category"], str(self.cat1.pk))
