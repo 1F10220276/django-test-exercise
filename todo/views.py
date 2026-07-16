@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import Http404
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 from todo.models import Task
 
 # Create your views here.
@@ -17,6 +18,10 @@ def index(request):
         tasks = Task.objects.order_by("due_at")
     else:
         tasks = Task.objects.order_by("-posted_at")
+
+    now = timezone.now()
+    for task in tasks:
+        task.is_due_soon_now = task.is_due_soon(now)
 
     context = {"tasks": tasks}
     return render(request, "todo/index.html", context)
