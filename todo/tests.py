@@ -69,6 +69,20 @@ class TaskModelTestCase(TestCase):
 
         self.assertFalse(task.is_due_soon(current))
 
+    def test_is_due_soon_false_for_completed_task(self):
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title="task1", completed=True, due_at=current + timedelta(hours=3))
+        task.save()
+
+        self.assertFalse(task.is_due_soon(current))
+
+    def test_is_due_soon_false_for_no_due_date(self):
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title="task1", due_at=None)
+        task.save()
+
+        self.assertFalse(task.is_due_soon(current))
+
 
 class TodoViewTestCase(TestCase):
     def setUp(self):
@@ -133,6 +147,17 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["tasks"]), 1)
         self.assertEqual(response.context["tasks"][0], task1)
+
+    def test_index_marks_due_soon_tasks(self):
+        now = timezone.now()
+        due_soon_task = Task.objects.create(title="Due soon", due_at=now + timedelta(hours=3))
+        far_future_task = Task.objects.create(title="Later", due_at=now + timedelta(days=2))
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["tasks"].get(pk=due_soon_task.pk).is_due_soon_now)
+        self.assertFalse(response.context["tasks"].get(pk=far_future_task.pk).is_due_soon_now)
 
     def test_index_get_order_post(self):
         task1 = Task(title="task1", due_at=timezone.make_aware(datetime(2024, 7, 1)))

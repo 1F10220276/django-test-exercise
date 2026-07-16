@@ -52,10 +52,6 @@ def index(request):
     else:
         tasks = tasks.order_by("-posted_at")
 
-    now = timezone.now()
-    for task in tasks:
-        task.is_due_soon_now = task.is_due_soon(now)
-
     context = {
         "tasks": tasks,
         "categories": categories,
