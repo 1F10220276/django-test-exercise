@@ -16,6 +16,9 @@
         <div class="panel">
           <ul>
             <li>Posted at: {{ task.posted_at }}</li>
+            {% if task.category %}
+            <li>Category: {{ task.category.name }}</li>
+            {% endif %}
             {% if task.due_at %}
             <li>Due at: {{ task.due_at }}</li>
             {% endif %}
