@@ -3,27 +3,61 @@ from django.http import Http404
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
-from todo.models import Task
+from todo.models import Category, Task
 
 # Create your views here.
 def index(request):
+    categories = Category.objects.order_by("name")
+
     if request.method == "POST":
+        category = None
+        category_id = request.POST.get("category", "").strip()
+        if category_id:
+            try:
+                category = Category.objects.get(pk=int(category_id))
+            except (Category.DoesNotExist, ValueError):
+                category = None
+
+        due_at = None
+        due_at_str = request.POST.get("due_at", "").strip()
+        if due_at_str:
+            due_at = make_aware(parse_datetime(due_at_str))
+
         task = Task(
             title=request.POST["title"],
-            due_at=make_aware(parse_datetime(request.POST["due_at"])),
+            due_at=due_at,
+            category=category,
         )
         task.save()
 
+    tasks = Task.objects.all()
+    search = request.GET.get("search", "").strip()
+    selected_category = request.GET.get("category", "").strip()
+
+    if search:
+        tasks = tasks.filter(title__icontains=search)
+
+    if selected_category:
+        try:
+            tasks = tasks.filter(category_id=int(selected_category))
+        except ValueError:
+            pass
+
     if request.GET.get("order") == "due":
-        tasks = Task.objects.order_by("due_at")
+        tasks = tasks.order_by("due_at")
     else:
-        tasks = Task.objects.order_by("-posted_at")
+        tasks = tasks.order_by("-posted_at")
 
     now = timezone.now()
     for task in tasks:
         task.is_due_soon_now = task.is_due_soon(now)
 
-    context = {"tasks": tasks}
+    context = {
+        "tasks": tasks,
+        "categories": categories,
+        "selected_category": selected_category,
+        "search": search,
+    }
     return render(request, "todo/index.html", context)
 
 def detail(request, task_id):
@@ -46,19 +80,36 @@ def delete(request, task_id):
     task.delete()
     return redirect(index)
 
-def update (request, task_id):
+def update(request, task_id):
     try:
         task = Task.objects.get(pk=task_id)
     except Task.DoesNotExist:
         raise Http404("Task does not exist")
+
+    categories = Category.objects.order_by("name")
     if request.method == 'POST':
+        category = None
+        category_id = request.POST.get("category", "").strip()
+        if category_id:
+            try:
+                category = Category.objects.get(pk=int(category_id))
+            except (Category.DoesNotExist, ValueError):
+                category = None
+
+        due_at = None
+        due_at_str = request.POST.get("due_at", "").strip()
+        if due_at_str:
+            due_at = make_aware(parse_datetime(due_at_str))
+
         task.title = request.POST['title']
-        task.due_at = make_aware(parse_datetime(request.POST['due_at']))
+        task.due_at = due_at
+        task.category = category
         task.save()
         return redirect('detail', task_id=task_id)
     
     context = {
-        'task': task
+        'task': task,
+        'categories': categories,
     }
     return render(request, "todo/edit.html", context)
 

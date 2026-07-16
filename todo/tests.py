@@ -1,7 +1,8 @@
 from django.test import TestCase, Client
 from django.utils import timezone
 from datetime import datetime, timedelta
-from todo.models import Task
+from todo.models import Category, Task
+
 
 
 # Create your tests here.
@@ -84,22 +85,46 @@ class TaskModelTestCase(TestCase):
 
 
 class TodoViewTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.cat1 = Category.objects.create(name="Work")
+        self.cat2 = Category.objects.create(name="Personal")
+
     def test_index_get(self):
-        client = Client()
-        response = client.get("/")
+        response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "todo/index.html")
         self.assertEqual(len(response.context["tasks"]), 0)
 
     def test_index_post(self):
-        client = Client()
-        data = {"title": "Test Task", "due_at": "2024-06-30 23:59:59"}
-        response = client.post("/", data)
+        data = {"title": "Test Task", "due_at": "2024-06-30 23:59:59", "category": str(self.cat1.pk)}
+        response = self.client.post("/", data)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "todo/index.html")
         self.assertEqual(len(response.context["tasks"]), 1)
+
+        task = Task.objects.get(title="Test Task")
+        self.assertEqual(task.category, self.cat1)
+
+    def test_index_get_search(self):
+        Task.objects.create(title="Buy milk")
+        Task.objects.create(title="Read book")
+        response = self.client.get("/?search=buy")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["tasks"]), 1)
+        self.assertEqual(response.context["tasks"][0].title, "Buy milk")
+
+    def test_index_get_category_filter(self):
+        task1 = Task.objects.create(title="Work task", category=self.cat1)
+        Task.objects.create(title="Personal task", category=self.cat2)
+        response = self.client.get("/?category={}".format(self.cat1.pk))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["tasks"]), 1)
+        self.assertEqual(response.context["tasks"][0], task1)
 
     def test_index_get_order_post(self):
         task1 = Task(title="task1", due_at=timezone.make_aware(datetime(2024, 7, 1)))
@@ -169,12 +194,11 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.context['task'], task)
 
     def test_update_post_success(self):
-        task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
+        task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)), category=self.cat1)
         task.save()
-        client = Client()
-        response = client.post(
+        response = self.client.post(
             '/{}/update'.format(task.pk),
-            {'title': 'updated task', 'due_at': '2024-07-02 12:00:00'}
+            {'title': 'updated task', 'due_at': '2024-07-02 12:00:00', 'category': str(self.cat2.pk)}
         )
 
         self.assertEqual(response.status_code, 302)
@@ -182,23 +206,21 @@ class TodoViewTestCase(TestCase):
 
         updated_task = Task.objects.get(pk=task.pk)
         self.assertEqual(updated_task.title, 'updated task')
+        self.assertEqual(updated_task.category, self.cat2)
         self.assertEqual(updated_task.due_at, timezone.make_aware(datetime(2024, 7, 2, 12, 0, 0)))
 
+    def test_close_success(self):
+        task = Task(title='task1', completed=False)
+        task.save()
+        response = self.client.get('/{}/close'.format(task.pk))
 
-        def test_finish_success(self):
-            task = Task(title='task1', completed=False)
-            task.save()
-            client = Client()
-            response = client.get('/{}/complete'.format(task.pk))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/')
 
-            self.assertEqual(response.status_code, 302)
-            self.assertRedirects(response, '/')
+        finished_task = Task.objects.get(pk=task.pk)
+        self.assertTrue(finished_task.completed)
 
-            finished_task = Task.objects.get(pk=task.pk)
-            self.assertTrue(finished_task.completed)
+    def test_close_fail(self):
+        response = self.client.get('/999/close')
 
-        def test_finish_fail(self):
-            client = Client()
-            response = client.get('/999/complete')
-
-            self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
