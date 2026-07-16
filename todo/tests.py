@@ -1,7 +1,8 @@
 from django.test import TestCase, Client
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
 from todo.models import Category, Task
+
 
 
 # Create your tests here.
@@ -53,6 +54,20 @@ class TaskModelTestCase(TestCase):
         task.save()
 
         self.assertFalse(task.is_overdue(current))
+
+    def test_is_due_soon_true(self):
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title="task1", due_at=current + timedelta(hours=3))
+        task.save()
+
+        self.assertTrue(task.is_due_soon(current))
+
+    def test_is_due_soon_false(self):
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title="task1", due_at=current + timedelta(days=2))
+        task.save()
+
+        self.assertFalse(task.is_due_soon(current))
 
 
 class TodoViewTestCase(TestCase):

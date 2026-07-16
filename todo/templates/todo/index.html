@@ -67,7 +67,7 @@
         </div>
 
         {% for task in tasks %}
-        <div class="task-card {% if task.completed %}completed{% else %}pending{% endif %}">
+        <div class="task-card {% if task.completed %}completed{% else %}pending{% endif %}{% if task.is_due_soon_now %} due-soon{% endif %}">
           <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>
           <ul>
             <li>Posted at: {{ task.posted_at }}</li>
