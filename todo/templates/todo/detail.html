@@ -15,6 +15,7 @@
         <h1>{{ task.title }}</h1>
         <div class="panel">
           <ul>
+            <li>Priority: {{ task.get_priority_display }}</li>
             <li>Posted at: {{ task.posted_at }}</li>
             {% if task.category %}
             <li>Category: {{ task.category.name }}</li>

@@ -1,0 +1,24 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("todo", "0001_initial"),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name="task",
+            name="priority",
+            field=models.CharField(
+                choices=[
+                    ("low", "低"),
+                    ("medium", "中"),
+                    ("high", "高"),
+                ],
+                default="medium",
+                max_length=6,
+            ),
+        ),
+    ]
